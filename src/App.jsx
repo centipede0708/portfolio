@@ -68,7 +68,7 @@ function Header() {
             Tanmay Sharma
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            Frontend Developer • AI/ML Enthusiast • B.Tech (ECE) @ DTU
+            Full Stack Developer • AI/ML Enthusiast • B.Tech (ECE) @ DTU
           </p>
         </div>
 
@@ -281,25 +281,6 @@ function Skills() {
   );
 }
 
-/* ---------------- Achievements ---------------- */
-function Achievements() {
-  return (
-    <MotionSection className="py-16" id="achievements" delay={0.16}>
-      <div className="container px-6">
-        <h3 className="text-2xl font-semibold mb-6">Achievements</h3>
-        <div className="bg-[#0d1620] p-6 rounded-2xl text-gray-300">
-          <ul className="list-disc ml-5 space-y-2">
-            <li>Top 3% in JEE Mains (≈9 lakh candidates)</li>
-            <li>Silver Medal — Badminton, Aahvaan (DTU, 2024)</li>
-            <li>Silver Medal — Badminton, Astra (IIIT-Delhi, 2023)</li>
-            <li>DTU Badminton Team — consistent podium finishes</li>
-          </ul>
-        </div>
-      </div>
-    </MotionSection>
-  );
-}
-
 /* ---------------- Footer ---------------- */
 function Footer() {
   return (
@@ -327,7 +308,6 @@ export default function App() {
         <Projects />
         <Experience />
         <Skills />
-        <Achievements />
       </main>
       <Footer />
     </div>
