@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion as Motion } from "framer-motion";
 import { Typewriter } from "react-simple-typewriter";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /* --------- Links --------- */
 const LINKS = {
@@ -165,11 +166,13 @@ function Hero() {
 function ProjectCard({ p }) {
   return (
     <div className="min-w-[280px] sm:min-w-[320px] bg-[#0f1724] p-6 rounded-2xl shadow-md mr-6">
-      <h3 className="text-lg font-semibold">{p.title}</h3>
-      <p className="text-gray-400 mt-2 text-sm">{p.desc}</p>
-      <div className="mt-4 text-xs text-blue-400">{p.tech}</div>
+      <h3 className="text-lg font-semibold">{p.name}</h3>
+      <p className="text-gray-400 mt-2 text-sm">{p.description}</p>
+      <div className="mt-4 text-xs text-blue-400">
+        {p.language || "—"}
+      </div>
       <a
-        href={p.link}
+        href={p.html_url}
         target="_blank"
         rel="noreferrer"
         className="inline-block mt-4 text-sm text-blue-400 hover:underline"
@@ -183,7 +186,19 @@ function ProjectCard({ p }) {
 /* ---------------- Projects Carousel ---------------- */
 function Projects() {
   const carouselRef = useRef(null);
+  const innerRef = useRef(null);
   const [width, setWidth] = useState(0);
+  const [projects, setProjects] = useState([]);
+
+  // Fetch repos from GitHub API
+  useEffect(() => {
+    fetch("https://api.github.com/users/<YOUR_GITHUB_USERNAME>/repos")
+      .then((res) => res.json())
+      .then((data) => {
+        // Optionally filter or sort repos here
+        setProjects(data);
+      });
+  }, []);
 
   useEffect(() => {
     if (carouselRef.current) {
@@ -191,7 +206,14 @@ function Projects() {
         carouselRef.current.scrollWidth - carouselRef.current.offsetWidth
       );
     }
-  }, []);
+  }, [projects]);
+
+  // Scroll handler
+  const scrollBy = (offset) => {
+    if (innerRef.current) {
+      innerRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
 
   return (
     <Motion.section
@@ -202,28 +224,36 @@ function Projects() {
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
     >
-      <div className="container px-6">
-        <h3 className="text-2xl font-semibold mb-10 text-center">
-          Selected Projects
-        </h3>
+      <div className="container px-6 relative">
+        <h3 className="text-2xl font-semibold mb-10 text-center">Projects</h3>
+
+        {/* Arrow buttons */}
+        <button
+          onClick={() => scrollBy(-300)}
+          className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#0f1724] p-2 rounded-full shadow-md z-10"
+        >
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </button>
+        <button
+          onClick={() => scrollBy(300)}
+          className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#0f1724] p-2 rounded-full shadow-md z-10"
+        >
+          <ChevronRight className="w-6 h-6 text-white" />
+        </button>
 
         {/* Outer wrapper */}
-        <Motion.div ref={carouselRef} className="overflow-hidden cursor-grab">
-          <Motion.div
-            className="flex"
-            drag="x"
-            dragConstraints={{ right: 0, left: -width }}
-            whileTap={{ cursor: "grabbing" }}
-          >
+        <div ref={innerRef} className="overflow-x-scroll scrollbar-hide">
+          <div className="flex">
             {projects.map((p) => (
-              <ProjectCard key={p.title} p={p} />
+              <ProjectCard key={p.id} p={p} />
             ))}
-          </Motion.div>
-        </Motion.div>
+          </div>
+        </div>
       </div>
     </Motion.section>
   );
 }
+
 
 
 /* ---------------- Experience ---------------- */
