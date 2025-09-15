@@ -192,7 +192,7 @@ function Projects() {
 
   // Fetch repos from GitHub API
   useEffect(() => {
-    fetch("https://api.github.com/users/<YOUR_GITHUB_USERNAME>/repos")
+    fetch("https://api.github.com/users/centipede0708/repos")
       .then((res) => res.json())
       .then((data) => {
         // Optionally filter or sort repos here
@@ -227,19 +227,23 @@ function Projects() {
       <div className="container px-6 relative">
         <h3 className="text-2xl font-semibold mb-10 text-center">Projects</h3>
 
-        {/* Arrow buttons */}
+        {/* Left Arrow */}
         <button
           onClick={() => scrollBy(-300)}
-          className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#0f1724] p-2 rounded-full shadow-md z-10"
+          className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#0f1724]/90 hover:bg-[#1c2b3a] p-2 rounded-full shadow-md z-20"
         >
           <ChevronLeft className="w-6 h-6 text-white" />
         </button>
+        
+        {/* Right Arrow */}
         <button
           onClick={() => scrollBy(300)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#0f1724] p-2 rounded-full shadow-md z-10"
+          className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#0f1724]/90 hover:bg-[#1c2b3a] p-2 rounded-full shadow-md z-20"
         >
           <ChevronRight className="w-6 h-6 text-white" />
         </button>
+
+
 
         {/* Outer wrapper */}
         <div ref={innerRef} className="overflow-x-scroll scrollbar-hide">
