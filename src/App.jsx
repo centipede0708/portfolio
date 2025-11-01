@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { motion as Motion } from "framer-motion";
 import { Typewriter } from "react-simple-typewriter";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 /* --------- Links --------- */
 const LINKS = {
@@ -162,15 +163,44 @@ function Hero() {
   );
 }
 
-/* ---------------- Project Card ---------------- */
+/* ---------------- Project Card (With README Preview) ---------------- */
 function ProjectCard({ p }) {
+  const [readme, setReadme] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const fetchReadme = async () => {
+    if (readme || loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`https://api.github.com/repos/${p.full_name}/readme`);
+      if (!res.ok) throw new Error("No README found");
+      const data = await res.json();
+      const content = atob(data.content);
+      setReadme(content.slice(0, 800));
+    } catch (err) {
+      setReadme("No README available.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMouseEnter = () => {
+    setShowPreview(true);
+    fetchReadme();
+  };
+
+  const handleMouseLeave = () => setShowPreview(false);
+
   return (
-    <div className="min-w-[280px] sm:min-w-[320px] bg-[#0f1724] p-6 rounded-2xl shadow-md mr-6">
+    <div
+      className="relative min-w-[280px] sm:min-w-[320px] bg-[#0f1724] p-6 rounded-2xl shadow-md mr-6 hover:shadow-lg transition"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <h3 className="text-lg font-semibold">{p.name}</h3>
-      <p className="text-gray-400 mt-2 text-sm">{p.description}</p>
-      <div className="mt-4 text-xs text-blue-400">
-        {p.language || "—"}
-      </div>
+      <p className="text-gray-400 mt-2 text-sm line-clamp-3">{p.description}</p>
+      <div className="mt-4 text-xs text-blue-400">{p.language || "—"}</div>
       <a
         href={p.html_url}
         target="_blank"
@@ -179,6 +209,18 @@ function ProjectCard({ p }) {
       >
         View Repo →
       </a>
+
+      {showPreview && (
+        <div className="absolute inset-x-0 bottom-0 translate-y-full mt-2 bg-[#0b1625] text-gray-200 p-4 rounded-xl border border-gray-700 shadow-lg w-[320px] max-h-[250px] overflow-y-auto z-30">
+          {loading ? (
+            <p className="text-sm text-gray-400 italic">Loading README...</p>
+          ) : (
+            <ReactMarkdown className="text-xs prose prose-invert max-w-none">
+              {readme}
+            </ReactMarkdown>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -190,25 +232,18 @@ function Projects() {
   const [width, setWidth] = useState(0);
   const [projects, setProjects] = useState([]);
 
-  // Fetch repos from GitHub API
   useEffect(() => {
     fetch("https://api.github.com/users/centipede0708/repos")
       .then((res) => res.json())
-      .then((data) => {
-        // Optionally filter or sort repos here
-        setProjects(data);
-      });
+      .then((data) => setProjects(data));
   }, []);
 
   useEffect(() => {
     if (carouselRef.current) {
-      setWidth(
-        carouselRef.current.scrollWidth - carouselRef.current.offsetWidth
-      );
+      setWidth(carouselRef.current.scrollWidth - carouselRef.current.offsetWidth);
     }
   }, [projects]);
 
-  // Scroll handler
   const scrollBy = (offset) => {
     if (innerRef.current) {
       innerRef.current.scrollBy({ left: offset, behavior: "smooth" });
@@ -227,7 +262,6 @@ function Projects() {
       <div className="container px-6 relative">
         <h3 className="text-2xl font-semibold mb-10 text-center">Projects</h3>
 
-        {/* Left Arrow */}
         <button
           onClick={() => scrollBy(-300)}
           className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#0f1724]/90 hover:bg-[#1c2b3a] p-2 rounded-full shadow-md z-20"
@@ -235,7 +269,6 @@ function Projects() {
           <ChevronLeft className="w-6 h-6 text-white" />
         </button>
         
-        {/* Right Arrow */}
         <button
           onClick={() => scrollBy(300)}
           className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#0f1724]/90 hover:bg-[#1c2b3a] p-2 rounded-full shadow-md z-20"
@@ -243,9 +276,6 @@ function Projects() {
           <ChevronRight className="w-6 h-6 text-white" />
         </button>
 
-
-
-        {/* Outer wrapper */}
         <div ref={innerRef} className="overflow-x-scroll scrollbar-hide">
           <div className="flex">
             {projects.map((p) => (
@@ -257,8 +287,6 @@ function Projects() {
     </Motion.section>
   );
 }
-
-
 
 /* ---------------- Experience ---------------- */
 function Experience() {
@@ -283,8 +311,8 @@ function Experience() {
 /* ---------------- Skills ---------------- */
 function Skills() {
   const groups = [
-    { title: "Languages", items: ["Java", "Python", "C/C++", "JavaScript", "Kotlin"] },
-    { title: "Frontend", items: ["React", "Vite", "Tailwind", "HTML", "CSS"] },
+    { title: "Languages", items: ["Java", "Python", "C/C++", "JavaScript", "Kotlin", "Assembly (x86, ARM, PIC)", "XML"] },
+    { title: "Frontend", items: ["React", "Vite", "Tailwind", "HTML", "CSS", "Rest API"] },
     { title: "ML & Tools", items: ["OpenCV", "ONNX Runtime", "scikit-learn", "OpenAI API"] },
     { title: "Databases/Backend", items: ["Flask", "Node.js", "MongoDB", "MySQL"] },
   ];
@@ -293,7 +321,7 @@ function Skills() {
       <div className="container px-6">
         <h3 className="text-2xl font-semibold mb-6">Skills</h3>
         <div className="grid md:grid-cols-2 gap-6">
-          {groups.map((g, idx) => (
+          {groups.map((g) => (
             <Motion.div
               key={g.title}
               className="bg-[#0f1724] p-5 rounded-2xl"
